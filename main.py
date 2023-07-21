@@ -49,31 +49,38 @@ def print_choose_strategy(player, opponent):
 
 
 def choose_strategy(player, opponent):
-    best_strategy = (None, -1000)
+    strategies = []
     for our_strategy in player.strategies:
         value = 0
         for opponent_strategy in opponent.strategies:
             value += our_strategy.opponent_node_vectors[opponent_strategy] * opponent_strategy.probability_to_play_according_to_opponent
         
-        if value > best_strategy[1]:
-            best_strategy = (our_strategy, value)
-    return best_strategy[0]
+        strategies.append([our_strategy, value])
+    if random.random() < strategies[0][1]/(strategies[0][1]+strategies[1][1]):
+        return strategies[0][0]
+    return strategies[1][0]
 
 
 def play(printer):
 
     #print()
-    if(printer):
-        A_strategy = print_choose_strategy(players['A'], players['B'])
-        B_strategy = print_choose_strategy(players['B'], players['A'])
-        print()
+    
+    A_strategy = choose_strategy(players['A'], players['B'])
+    B_strategy = choose_strategy(players['B'], players['A'])
+        
+    """
     else:
         #A_strategy = choose_strategy(players['A'], players['B'])
         if random.random() < 0.5:
             A_strategy = players['A'].strategies[0]
         else:
             A_strategy = players['A'].strategies[1]
-        B_strategy = choose_strategy(players['B'], players['A'])
+        #B_strategy = choose_strategy(players['B'], players['A'])
+        if random.random() < 0.4:
+            B_strategy = players['B'].strategies[0]
+        else:
+            B_strategy = players['B'].strategies[1]
+    """
 
     A_picks.append(A_strategy.id)
     B_picks.append(B_strategy.id)
@@ -148,12 +155,15 @@ for player in players.values():
 
 
 #must scale games
-for i in range(1000000):
+iterations = 1000000
+for i in range(iterations):
     if i % 100000 == 99:
         play(True)
     else:
         play(False)
-print(scores)
+
+for player, value in scores.items():
+    print(player, value/iterations)
 x_values = [i for i in range(len(A_picks))]
 
 #plt.plot(x_values, A_picks, B_picks)
