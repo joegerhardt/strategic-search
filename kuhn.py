@@ -51,6 +51,9 @@ def train(iterations):
     cards = [1, 2, 3]
     util = 0
     for i in range(iterations):
+        if i == iterations // 2:
+            for node in nodeMap.values():
+                node.strategy_sum = [0,0]
         shuffle(cards)
         util += cfr(cards, "", 1, 1)
     print("Average game value:", util/iterations)
@@ -98,10 +101,10 @@ def cfr(cards, history, p0, p1):
     for a in range(num_actions):
         nextHistory = history + ("p" if a == 0 else "b")
         if player == 0:
-            util[a] = cfr(cards, nextHistory, p0 * strategy[a], p1)
+            util[a] = -cfr(cards, nextHistory, p0 * strategy[a], p1)
         else:
-            util[a] = cfr(cards, nextHistory, p0 * strategy[a], p1)
-        nodeUtil += strategy[a] + util[a]
+            util[a] = -cfr(cards, nextHistory, p0, p1 * strategy[a])
+        nodeUtil += strategy[a] * util[a]
 
     for a in range(num_actions):
         regret = util[a] - nodeUtil
@@ -113,7 +116,7 @@ def cfr(cards, history, p0, p1):
 iterations = 100000
 train(iterations)
 for node in nodeMap.values():
-    print(node, node.regret_sum)
+    print(node)
 
 
 
